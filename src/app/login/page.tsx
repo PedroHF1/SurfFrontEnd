@@ -1,11 +1,49 @@
+'use client'
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/auth";
 import { cn } from "@/lib/utils";
+import { LoginProps, LoginSchema } from "@/schemas/auth/login.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { GalleryVerticalEnd } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function PageLogin() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const {login} = useAuth()
+  const router = useRouter();
+
+  const { register, formState: { errors }, handleSubmit } = useForm<LoginProps>({
+    resolver: zodResolver(LoginSchema),
+  })
+
+  const onSubmit = async (data: LoginProps) => {
+    setIsLoading(true)
+    console.log(data);
+    try {
+      await login(data);
+      setError(null)
+      router.push('/forecast')
+    } catch (error) {
+      console.error(error);
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.message);
+      }
+    } finally {
+      setIsLoading(false)
+    }
+
+  }
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -19,7 +57,7 @@ export default function PageLogin() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <form className={"flex flex-col gap-6"} >
+            <form className={"flex flex-col gap-6"} onSubmit={handleSubmit(onSubmit)}>
               <div className="flex flex-col items-center gap-2 text-center ">
                 <h1 className="text-2xl font-bold">Login to your account</h1>
                 <p className="text-balance text-sm text-muted-foreground">Enter your email below to login to your account</p>
@@ -27,7 +65,10 @@ export default function PageLogin() {
               <div className="grid gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="your@email.com" required />
+                  <Input id="email" type="email" placeholder="your@email.com" {...register('email')} />
+                  {errors.email && (
+                    <p className='text-red-400 text-sm mt-1'>{errors.email.message}</p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
@@ -36,9 +77,20 @@ export default function PageLogin() {
                       Forgot your password?
                     </a> */}
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input id="password" type="password" {...register('password')} />
+                  {errors.password && (
+                    <p className='text-red-400 text-sm mt-1'>{errors.password.message}</p>
+                  )}
                 </div>
-                <Button type="submit" className="w-full">
+
+{error && (
+  <Alert>
+    <AlertTitle>Error</AlertTitle>
+    <AlertDescription>{error}</AlertDescription>
+  </Alert>
+)}
+
+                <Button type="submit" className="w-full" loading={isLoading} disabled={isLoading}>
                   Login
                 </Button>
 
