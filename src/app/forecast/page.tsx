@@ -13,9 +13,11 @@ export default function Forecast() {
   const [filterCondition, setFilterCondition] = useState<string>("all")
   const [isPanelExpanded, setIsPanelExpanded] = useState(false)
 
-  const {data, isLoading} = useQuery({
+  const {data, isFetching} = useQuery({
     queryKey: ['forecast'],
-    queryFn: () => getForecast()
+    queryFn: () => getForecast(),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 5
   })
 
   return (

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AddBeach, Beach } from "@/interfaces/beach"
 import { Plus } from "lucide-react"
 import { useState } from "react"
@@ -62,18 +63,24 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
             <Input
               id="name"
               value={newBeach.name}
+              placeholder="Miami Beach"
               onChange={(e) => setNewBeach({ ...newBeach, name: e.target.value })}
               className="bg-slate-700 border-slate-600"
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="position">Beach Position</Label>
-            <Input
-              id="position"
-              value={newBeach.position}
-              onChange={(e) => setNewBeach({ ...newBeach, position: e.target.value })}
-              className="bg-slate-700 border-slate-600"
-            />
+            <Select value={newBeach.position} onValueChange={(value) => setNewBeach({ ...newBeach, position: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a position" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="north">North</SelectItem>
+                <SelectItem value="south">South</SelectItem>
+                <SelectItem value="east">East</SelectItem>
+                <SelectItem value="west">West</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -82,6 +89,7 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
               <Input
                 id="latitude"
                 type="number"
+                placeholder="-23.000372"
                 step="any"
                 value={newBeach.lat}
                 onChange={(e) => setNewBeach({ ...newBeach, lat: e.target.value })}
@@ -93,6 +101,7 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
               <Input
                 id="longitude"
                 type="number"
+                placeholder="-43.365894"
                 step="any"
                 value={newBeach.lng}
                 onChange={(e) => setNewBeach({ ...newBeach, lng: e.target.value })}
