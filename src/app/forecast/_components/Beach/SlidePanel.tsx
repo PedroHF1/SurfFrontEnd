@@ -1,26 +1,28 @@
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronUp, X } from "lucide-react"
 import { BeachCard } from "./BeachCard"
-import { AddBeach, Beach } from "@/interfaces/beach"
+import { AddBeach, Beach, Forecast } from "@/interfaces/beach"
 import { SearchAndFilters } from "./SearchAndFilter"
 import { createBeach } from "@/services/beach"
+import moment from "moment"
+import { useState } from "react"
 
 interface SlidingPanelProps {
-  beaches: Beach[]
+  forecasts?: Forecast[]
   selectedBeach: Beach | null
   searchTerm: string
   filterCondition: string
   isPanelExpanded: boolean
   onSearchChange: (value: string) => void
   onFilterChange: (value: string) => void
-  onBeachSelect: (beach: Beach) => void
+  onBeachSelect: (beach: Beach | null) => void
   onBeachDeselect: () => void
   onTogglePanel: () => void
   onPanelExpand: () => void
 }
 
 export function SlidingPanel({
-  beaches,
+  forecasts,
   selectedBeach,
   searchTerm,
   filterCondition,
@@ -32,12 +34,15 @@ export function SlidingPanel({
   onTogglePanel,
   onPanelExpand,
 }: SlidingPanelProps) {
-  const filteredBeaches = beaches && beaches.filter((beach) => {
-    const matchesSearch = beach.name && beach.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesFilter =
-      filterCondition === "all" || beach.surfCondition.toLowerCase() === filterCondition.toLowerCase()
-    return matchesSearch && matchesFilter
-  })
+  const [selectedTime, setSelectedTime] = useState('')
+  const filteredBeaches = selectedTime && forecasts ? forecasts.filter(beach => beach.time === selectedTime).flatMap(beach => beach.forecast) : []
+  // const filteredBeaches = forecasts && forecasts.filter((beach) => {
+  //   // const matchesSearch = searchTerm && searchTerm.length > 0 ? beach.name && beach.name.toLowerCase().includes(searchTerm.toLowerCase()) : true
+  //   // const matchesFilter = filterCondition ? filterCondition === "all" || beach.surfCondition.toLowerCase() === filterCondition.toLowerCase() : true
+  //   // return matchesSearch
+  // })
+
+
 
   const handleAddBeach = async (payload: AddBeach) => {
    try {
@@ -99,9 +104,14 @@ export function SlidingPanel({
             <BeachCard beach={selectedBeach} onClick={() => {}} variant="detailed" />
           ) : (
             <div className="overflow-auto space-y-6 h-[420px]">
-              {filteredBeaches && filteredBeaches.map((beach) => (
+              <div className="flex items-center justify-center gap-2">
+                {forecasts && forecasts.map((forecast, index) => (
+                  <Button key={index} onClick={() => setSelectedTime(forecast.time)} variant={'link'}>{moment.utc(forecast.time).format("HH A")}</Button>
+                ))}
+              </div>
+              {filteredBeaches && filteredBeaches.map((beach, index) => (
                 <BeachCard
-                  key={beach.id}
+                  key={index}
                   beach={beach}
                   onClick={onBeachSelect}
                   variant="compact"

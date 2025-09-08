@@ -1,15 +1,19 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { getRatingLabel } from "@/helpers/rating"
+import { useBeaches } from "@/hooks/useBeaches"
 import { Beach } from "@/interfaces/beach"
 import { MapPin, Star, Waves, Wind } from "lucide-react"
 
 interface BeachCardProps {
   beach: Beach
-  onClick: (beach: Beach) => void
+  onClick: (beach: Beach | null) => void
   variant?: "compact" | "detailed"
 }
 
 export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProps) {
+  const {selectedBeach} = useBeaches()
+
   const getConditionColor = (condition: string) => {
     switch (condition) {
       case "Epic":
@@ -41,12 +45,12 @@ export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProp
               <div>
                 <CardTitle className="text-white">{beach.name}</CardTitle>
                 <CardDescription className="text-slate-400">
-                  {beach.latitude.toFixed(4)}, {beach.longitude.toFixed(4)}
+                  {beach.lat}, {beach.lng}
                 </CardDescription>
               </div>
             </div>
-            <Badge className={`${getConditionColor(beach.surfCondition)} text-white`}>
-              {beach.surfCondition}
+            <Badge className={`${getConditionColor(getRatingLabel[beach.rating])} text-white`}>
+              {getRatingLabel[beach.rating]}
             </Badge>
           </div>
         </CardHeader>
@@ -66,7 +70,7 @@ export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProp
                 Swell
               </div>
               <div className="text-white font-medium">
-                {beach.swellHeight.toFixed(1)}m @ {beach.swellPeriod.toFixed(1)}s
+                {beach.swellHeight}m @ {beach.swellPeriod}s
               </div>
             </div>
 
@@ -75,7 +79,7 @@ export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProp
                 <Waves className="w-4 h-4 mr-1" />
                 Waves
               </div>
-              <div className="text-white font-medium">{beach.waveHeight.toFixed(1)}m</div>
+              <div className="text-white font-medium">{beach.waveHeight}m</div>
             </div>
 
             <div className="space-y-1">
@@ -100,7 +104,13 @@ export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProp
   return (
     <Card
       className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors cursor-pointer"
-      onClick={() => onClick(beach)}
+      onClick={() => {
+        if (selectedBeach?._id === beach._id) {
+          onClick(null)
+        } else {
+          onClick(beach)
+        }
+      }}
     >
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
@@ -109,23 +119,23 @@ export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProp
             <div>
               <h3 className="text-white font-medium">{beach.name}</h3>
               <p className="text-slate-400 text-sm">
-                {beach.latitude.toFixed(2)}, {beach.longitude.toFixed(2)}
+                {beach.lat}, {beach.lng}
               </p>
             </div>
           </div>
-          <Badge className={`${getConditionColor(beach.surfCondition)} text-white text-xs`}>
-            {beach.surfCondition}
+          <Badge className={`${getConditionColor(getRatingLabel[beach.rating])} text-white text-xs`}>
+            {getRatingLabel[beach.rating]}
           </Badge>
         </div>
 
         <div className="grid grid-cols-3 gap-3 text-sm">
           <div>
             <div className="text-slate-400 text-xs">Swell</div>
-            <div className="text-white font-medium">{beach.swellHeight.toFixed(1)}m</div>
+            <div className="text-white font-medium">{beach.swellHeight}m</div>
           </div>
           <div>
             <div className="text-slate-400 text-xs">Waves</div>
-            <div className="text-white font-medium">{beach.waveHeight.toFixed(1)}m</div>
+            <div className="text-white font-medium">{beach.waveHeight}m</div>
           </div>
           <div>
             <div className="text-slate-400 text-xs">Wind</div>

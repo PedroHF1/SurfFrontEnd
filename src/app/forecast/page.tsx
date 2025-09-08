@@ -29,7 +29,7 @@ export default function Forecast() {
       </div>
 
       <SlidingPanel
-        beaches={data}
+        forecasts={data}
         selectedBeach={selectedBeach}
         searchTerm={searchTerm}
         filterCondition={filterCondition}

@@ -1,16 +1,20 @@
 export interface Beach {
-  id: string
+  _id: string
   name: string
-  latitude: number
-  longitude: number
+  lat: number
+  lng: number
   rating: number
   swellHeight: number
   swellPeriod: number
   waveHeight: number
   windSpeed: number
   windDirection: string
-  surfCondition: "Poor" | "Fair" | "Good" | "Epic"
   lastUpdated: string
+}
+
+export interface Forecast {
+  time: string
+  forecast: Beach[]
 }
 
 export interface AddBeach {
