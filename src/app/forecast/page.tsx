@@ -3,29 +3,34 @@
 import GoogleMapComponent from "@/components/MapComponent"
 import { useState } from "react"
 import { SlidingPanel } from "./_components/Beach/SlidePanel"
-import { useBeaches } from "@/hooks/useBeaches"
 import { useQuery } from "@tanstack/react-query"
 import { getForecast } from "@/services/forecast"
+import { forecastExample } from "@/fixtures/forecast_example"
+import { Beach } from "@/interfaces/forecast"
 
 export default function Forecast() {
-  const { beaches, selectedBeach, setSelectedBeach,  } = useBeaches()
+  const [selectedBeach, setSelectedBeach] = useState<Beach | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCondition, setFilterCondition] = useState<string>("all")
   const [isPanelExpanded, setIsPanelExpanded] = useState(false)
 
-  const {data, isFetching} = useQuery({
+  const {data = forecastExample as any, isFetching} = useQuery({
+    retry: false,
     queryKey: ['forecast'],
-    queryFn: () => getForecast(),
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 5
+    queryFn: () => {},
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 10
   })
 
+  const markers = data && data.length > 0 ? data[0].forecast.map((beach: Beach) => ({
+    lat: beach.lat,
+    lng: beach.lng,
+  })) : [{ lat: 0, lng: 0 }]
+
   return (
-    <div className="h-screen overflow-hidden bg-slate-900">
-
-
+    <div className="h-screen overflow-hidden bg-card">
       <div className="h-screen" onClick={() => setIsPanelExpanded(false)}>
-        <GoogleMapComponent latitude={-33.7969} longitude={151.2899} />
+        <GoogleMapComponent markers={markers} />
       </div>
 
       <SlidingPanel

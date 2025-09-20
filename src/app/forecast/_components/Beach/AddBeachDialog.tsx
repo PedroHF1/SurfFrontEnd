@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AddBeach, Beach } from "@/interfaces/beach"
+import { AddBeach } from "@/interfaces/forecast"
 import { Plus } from "lucide-react"
 import { useState } from "react"
 
@@ -44,15 +44,14 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-green-500 hover:bg-green-600">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button className="bg-[#550C18] bg-gradient-to-r from-[#550C18] to-[#550C18]/70 hover:bg-[#D1DAC0]" leftIcon={<Plus className="w-4 h-4 mr-2" />}>
           Add Beach
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-slate-800 border-slate-700 text-white">
+      <DialogContent className="bg-background">
         <DialogHeader>
-          <DialogTitle>Add New Beach</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogTitle >Add New Beach</DialogTitle>
+          <DialogDescription className="text-slate-500">
             Register a new surf spot to track conditions
           </DialogDescription>
         </DialogHeader>
@@ -65,13 +64,13 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
               value={newBeach.name}
               placeholder="Miami Beach"
               onChange={(e) => setNewBeach({ ...newBeach, name: e.target.value })}
-              className="bg-slate-700 border-slate-600"
+              className="bg-background border-border dark:border-slate-600"
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="position">Beach Position</Label>
             <Select value={newBeach.position} onValueChange={(value) => setNewBeach({ ...newBeach, position: value })}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full dark:border-slate-600">
                 <SelectValue placeholder="Select a position" />
               </SelectTrigger>
               <SelectContent>
@@ -88,33 +87,107 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
               <Label htmlFor="latitude">Latitude</Label>
               <Input
                 id="latitude"
-                type="number"
+                type="text"
                 placeholder="-23.000372"
                 step="any"
                 value={newBeach.lat}
-                onChange={(e) => setNewBeach({ ...newBeach, lat: e.target.value })}
-                className="bg-slate-700 border-slate-600"
+                onChange={(e) => {
+                let value = e.target.value;
+
+    // Remove any non-digit, non-decimal, non-minus characters
+    value = value.replace(/[^-\d.]/g, '');
+
+    // Handle negative sign only at the beginning
+    if (value.indexOf('-') > 0) {
+      value = value.replace(/-/g, '');
+    }
+
+    // Split by decimal point
+    let parts = value.split('.');
+
+    // If there's an integer part, limit it and add decimal
+    if (parts[0]) {
+      // Remove leading minus for processing
+      const isNegative = parts[0].startsWith('-');
+      let integerPart = parts[0].replace('-', '');
+
+      // Ensure exactly 2 digits for integer part
+      if (integerPart.length >= 2) {
+        integerPart = integerPart.slice(0, 2);
+        // Auto-add decimal point after 2 digits
+        if (parts.length === 1 && value.length >= (isNegative ? 3 : 2)) {
+          value = (isNegative ? '-' : '') + integerPart + '.';
+        } else {
+          // Limit decimal part to 6 digits
+          const decimalPart = parts[1] ? parts[1].slice(0, 6) : '';
+          value = (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
+        }
+      } else {
+        value = (isNegative ? '-' : '') + integerPart;
+      }
+    }
+
+    setNewBeach({ ...newBeach, lat: value });
+                }}
+                className="bg-background border-border dark:border-slate-600"
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="longitude">Longitude</Label>
               <Input
                 id="longitude"
-                type="number"
+                type="text"
                 placeholder="-43.365894"
                 step="any"
                 value={newBeach.lng}
-                onChange={(e) => setNewBeach({ ...newBeach, lng: e.target.value })}
-                className="bg-slate-700 border-slate-600"
+                onChange={(e) => {
+                let value = e.target.value;
+
+    // Remove any non-digit, non-decimal, non-minus characters
+    value = value.replace(/[^-\d.]/g, '');
+
+    // Handle negative sign only at the beginning
+    if (value.indexOf('-') > 0) {
+      value = value.replace(/-/g, '');
+    }
+
+    // Split by decimal point
+    let parts = value.split('.');
+
+    // If there's an integer part, limit it and add decimal
+    if (parts[0]) {
+      // Remove leading minus for processing
+      const isNegative = parts[0].startsWith('-');
+      let integerPart = parts[0].replace('-', '');
+
+      // Ensure exactly 2 digits for integer part
+      if (integerPart.length >= 2) {
+        integerPart = integerPart.slice(0, 2);
+        // Auto-add decimal point after 2 digits
+        if (parts.length === 1 && value.length >= (isNegative ? 3 : 2)) {
+          value = (isNegative ? '-' : '') + integerPart + '.';
+        } else {
+          // Limit decimal part to 6 digits
+          const decimalPart = parts[1] ? parts[1].slice(0, 6) : '';
+          value = (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
+        }
+      } else {
+        value = (isNegative ? '-' : '') + integerPart;
+      }
+    }
+
+    setNewBeach({ ...newBeach, lng: value });
+                }}
+                className="bg-background border-border dark:border-slate-600"
               />
             </div>
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)} className="border-slate-600">
+          <Button variant="outline" onClick={() => setIsOpen(false)} className="">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="bg-green-500 hover:bg-green-600">
+          <Button onClick={handleSubmit} className="bg-[#BBC5AA] hover:bg-[#BBC5AA]">
             Add Beach
           </Button>
         </div>

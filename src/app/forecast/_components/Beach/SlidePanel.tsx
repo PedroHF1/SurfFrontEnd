@@ -1,11 +1,16 @@
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, X } from "lucide-react"
-import { BeachCard } from "./BeachCard"
-import { AddBeach, Beach, Forecast } from "@/interfaces/beach"
-import { SearchAndFilters } from "./SearchAndFilter"
+import { Badge } from '@/components/ui/badge'
+import { forecastExample } from "@/fixtures/forecast_example"
+import { AddBeach, Beach, Forecast } from "@/interfaces/forecast"
 import { createBeach } from "@/services/beach"
-import moment from "moment"
-import { useState } from "react"
+import { Filters } from "@/types/filter"
+import { motion } from 'framer-motion'
+import { useMemo, useState } from "react"
+import { applyFilters, getActiveFiltersCount, groupBeachesByName, sortBeaches } from "../../_utils"
+import { FiltersSheet } from '../Filter'
+import { Header } from "../Header"
+import { SortDropdown } from '../SortDropdown'
+import { TimeBar } from "../TimeBar"
+import { BeachList } from './BeachList'
 
 interface SlidingPanelProps {
   forecasts?: Forecast[]
@@ -34,17 +39,46 @@ export function SlidingPanel({
   onTogglePanel,
   onPanelExpand,
 }: SlidingPanelProps) {
-  const [selectedTime, setSelectedTime] = useState('')
-  const filteredBeaches = selectedTime && forecasts ? forecasts.filter(beach => beach.time === selectedTime).flatMap(beach => beach.forecast) : []
-  // const filteredBeaches = forecasts && forecasts.filter((beach) => {
-  //   // const matchesSearch = searchTerm && searchTerm.length > 0 ? beach.name && beach.name.toLowerCase().includes(searchTerm.toLowerCase()) : true
-  //   // const matchesFilter = filterCondition ? filterCondition === "all" || beach.surfCondition.toLowerCase() === filterCondition.toLowerCase() : true
-  //   // return matchesSearch
-  // })
+  const [selectedTime, setSelectedTime] = useState("2025-09-08T01:00:00+00:00")
+  const [sortBy, setSortBy] = useState("rating")
+  const [searchQuery, setSearchQuery] = useState("")
+  const times = forecastExample.map((f) => f.time)
+  const selectedTimeIndex = times.indexOf(selectedTime)
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [filters, setFilters] = useState<Filters>({
+    minRating: 0,
+    position: "all",
+    maxWind: 50,
+    minSwellPeriod: 0,
+    timeOfDay: [],
+  })
 
+  const processedData = useMemo(() => {
+    const groupedBeaches = groupBeachesByName(forecastExample as any)
 
+    let filteredBeaches = groupedBeaches
+    if (searchQuery) {
+      filteredBeaches = groupedBeaches.filter((beach) => beach.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
 
-  const handleAddBeach = async (payload: AddBeach) => {
+    const filteredByConditions = applyFilters(filteredBeaches, filters, selectedTimeIndex)
+
+    const sortedBeaches = sortBeaches(filteredByConditions, sortBy)
+
+    return {
+      beaches: sortedBeaches,
+      totalCount: groupedBeaches.length,
+      filteredCount: sortedBeaches.length,
+      times: forecastExample.map((f) => f.time),
+    }
+  }, [sortBy, searchQuery, filters])
+
+  // Re-fetch data with correct time index if it's different from 0
+  // const finalData = useSurfData(selectedTimeIndex >= 0 ? selectedTimeIndex : 0, sortBy, searchQuery, filters)
+
+  const activeFiltersCount = getActiveFiltersCount(filters)
+
+const handleAddBeach = async (payload: AddBeach) => {
    try {
     await createBeach(payload)
    } catch (error) {
@@ -53,74 +87,104 @@ export function SlidingPanel({
   }
 
   return (
-    <div
-      className={`fixed left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 transition-all duration-300 ease-in-out z-40 ${
+    <div className={`fixed left-0 right-0 bg-background backdrop-blur-sm border-t transition-all duration-300 ease-in-out z-40 ${
         isPanelExpanded ? "bottom-0 top-[170px]" : "-bottom-[250px]"
       }`}
       style={{
         height: isPanelExpanded ? "calc(100vh - 8rem)" : "50vh",
       }}
       onClick={onPanelExpand}
-    >
-      <div className="flex items-center justify-between p-4 border-b border-slate-700">
-        <div className="flex items-center space-x-4">
-          <h2 className="text-lg font-semibold text-white">Surf Spots ({filteredBeaches && filteredBeaches.length})</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation()
-              onTogglePanel()
-            }}
-            className="text-slate-400 hover:text-white"
+      >
+      <Header
+        beachCount={processedData.filteredCount}
+        searchQuery={searchQuery}
+        isPanelExpanded={isPanelExpanded}
+        onSearchChange={setSearchQuery}
+        onAddBeach={handleAddBeach}
+        onTogglePanel={onTogglePanel}
+        onOpenFilters={() => setIsFiltersOpen(true)}
+      />
+
+      <TimeBar times={times} selectedTime={selectedTime} onTimeSelect={setSelectedTime} />
+
+      <main className="container mx-auto px-4 py-6 ">
+        <motion.div
+          className="flex items-center justify-between mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-semibold text-foreground">
+              {processedData.filteredCount} of {processedData.totalCount} beaches
+            </h2>
+
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="gap-1">
+                {activeFiltersCount} filter{activeFiltersCount !== 1 ? "s" : ""} active
+              </Badge>
+            )}
+          </div>
+
+          <SortDropdown sortBy={sortBy} onSortChange={setSortBy} />
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className='overflow-y-auto h-[50vh]'>
+          <BeachList
+            beaches={processedData.beaches}
+            selectedTimeIndex={selectedTimeIndex >= 0 ? selectedTimeIndex : 0}
+            sortBy={sortBy}
+            searchQuery={searchQuery}
+          />
+        </motion.div>
+
+        {processedData.beaches.length === 0 && (
+          <motion.div
+            className="text-center py-12"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
           >
-            {isPanelExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
-          </Button>
-        </div>
-
-        {selectedBeach && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBeachDeselect}
-            className="text-slate-400 hover:text-white"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        )}
-      </div>
-
-      <div className="flex-1 overflow-hidden">
-        <SearchAndFilters
-          searchTerm={searchTerm}
-          onSearchChange={onSearchChange}
-          filterCondition={filterCondition}
-          onFilterChange={onFilterChange}
-          onAddBeach={handleAddBeach}
-        />
-
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {selectedBeach ? (
-            <BeachCard beach={selectedBeach} onClick={() => {}} variant="detailed" />
-          ) : (
-            <div className="overflow-auto space-y-6 h-[420px]">
-              <div className="flex items-center justify-center gap-2">
-                {forecasts && forecasts.map((forecast, index) => (
-                  <Button key={index} onClick={() => setSelectedTime(forecast.time)} variant={'link'}>{moment.utc(forecast.time).format("HH A")}</Button>
-                ))}
+            <div className="max-w-md mx-auto">
+              <div className="text-6xl mb-4">🏄‍♂️</div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">No beaches match your criteria</h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your search or filters to find more surf spots.
+              </p>
+              <div className="flex gap-2 justify-center">
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="text-sm text-primary hover:underline">
+                    Clear search
+                  </button>
+                )}
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={() =>
+                      setFilters({
+                        minRating: 0,
+                        position: "all",
+                        maxWind: 50,
+                        minSwellPeriod: 0,
+                        timeOfDay: [],
+                      })
+                    }
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Reset filters
+                  </button>
+                )}
               </div>
-              {filteredBeaches && filteredBeaches.map((beach, index) => (
-                <BeachCard
-                  key={index}
-                  beach={beach}
-                  onClick={onBeachSelect}
-                  variant="compact"
-                />
-              ))}
             </div>
-          )}
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </main>
+
+      <FiltersSheet
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+        filters={filters}
+        onFiltersChange={setFilters}
+      />
     </div>
   )
 }

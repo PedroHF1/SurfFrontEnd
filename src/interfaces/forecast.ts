@@ -1,20 +1,31 @@
 export interface Beach {
-  _id: string
+  _id?: string
   name: string
   lat: number
   lng: number
   rating: number
+  position: string
   swellHeight: number
+  swellDirection: number
   swellPeriod: number
   waveHeight: number
+  waveDirection: number
   windSpeed: number
-  windDirection: string
+  windDirection: number
   lastUpdated: string
 }
 
 export interface Forecast {
   time: string
   forecast: Beach[]
+}
+
+export interface ProcessedBeach {
+  name: string
+  position: string
+  lat: number
+  lng: number
+  hourlyData: (Beach & { time: string })[]
 }
 
 export interface AddBeach {

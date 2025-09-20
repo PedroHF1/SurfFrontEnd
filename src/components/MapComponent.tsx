@@ -5,15 +5,13 @@ const containerStyle = {
   width: '100%',
   height: '100%',
   border: '2px solid #E2E8F0',
-  borderRadius: '1rem',
 };
 
 interface GoogleMapComponentProps {
-  latitude: number;
-  longitude: number;
+markers: { lat: number; lng: number }[]
 }
 
-const GoogleMapComponent: React.FC<GoogleMapComponentProps> = ({ latitude, longitude }) => {
+const GoogleMapComponent: React.FC<GoogleMapComponentProps> = ({markers}: GoogleMapComponentProps) => {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
@@ -21,16 +19,12 @@ const GoogleMapComponent: React.FC<GoogleMapComponentProps> = ({ latitude, longi
   if (loadError) {
     return <div>Error loading maps...</div>;
   }
-  const center = {
-    lat: latitude,
-    lng: longitude,
-  };
 
   return isLoaded ? (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={center}
-      zoom={14}
+      center={{lat: markers[0].lat, lng: markers[0].lng}}
+      zoom={markers.length > 1 ? 10 : 14}
       options={{
         styles: customMap,
         disableDefaultUI: true,
@@ -38,7 +32,9 @@ const GoogleMapComponent: React.FC<GoogleMapComponentProps> = ({ latitude, longi
         clickableIcons: true,
       }}
     >
-      <Marker position={center} />
+       {markers.map((marker, index) => (
+        <Marker key={index} position={marker} />
+      ))}
     </GoogleMap>
   ) : null;
 };

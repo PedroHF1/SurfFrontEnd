@@ -1,148 +1,231 @@
+"use client"
+
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronDown, ExternalLink, Star } from "lucide-react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getRatingLabel } from "@/helpers/rating"
-import { useBeaches } from "@/hooks/useBeaches"
-import { Beach } from "@/interfaces/beach"
-import { MapPin, Star, Waves, Wind } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn, formatCoordinates, getDirectionArrow } from "@/lib/utils"
+import { getQualityLabel } from "../../_utils"
+import { Sparkline } from "../Sparkline"
+import { ProcessedBeach } from "@/interfaces/forecast"
 
 interface BeachCardProps {
-  beach: Beach
-  onClick: (beach: Beach | null) => void
-  variant?: "compact" | "detailed"
+  beach: ProcessedBeach
+  selectedTimeIndex: number
+  className?: string
 }
 
-export function BeachCard({ beach, onClick, variant = "compact" }: BeachCardProps) {
-  const {selectedBeach} = useBeaches()
+export function BeachCard({ beach, selectedTimeIndex, className }: BeachCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case "Epic":
-        return "bg-green-500"
-      case "Good":
-        return "bg-blue-500"
-      case "Fair":
-        return "bg-yellow-500"
-      case "Poor":
-        return "bg-red-500"
-      default:
-        return "bg-gray-500"
-    }
-  }
+  const currentData = beach.hourlyData[selectedTimeIndex] || beach.hourlyData[0]
+  const quality = getQualityLabel(currentData.rating)
+  const sparklineData = beach.hourlyData.slice(selectedTimeIndex, selectedTimeIndex + 12).map((d) => d.waveHeight)
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star key={i} className={`w-4 h-4 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-600"}`} />
-    ))
-  }
-
-  if (variant === "detailed") {
-    return (
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <MapPin className="w-5 h-5 text-blue-400" />
-              <div>
-                <CardTitle className="text-white">{beach.name}</CardTitle>
-                <CardDescription className="text-slate-400">
-                  {beach.lat}, {beach.lng}
-                </CardDescription>
-              </div>
-            </div>
-            <Badge className={`${getConditionColor(getRatingLabel[beach.rating])} text-white`}>
-              {getRatingLabel[beach.rating]}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center text-sm text-slate-400">
-                <Star className="w-4 h-4 mr-1" />
-                Rating
-              </div>
-              <div className="flex">{renderStars(beach.rating)}</div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center text-sm text-slate-400">
-                <Waves className="w-4 h-4 mr-1" />
-                Swell
-              </div>
-              <div className="text-white font-medium">
-                {beach.swellHeight}m @ {beach.swellPeriod}s
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center text-sm text-slate-400">
-                <Waves className="w-4 h-4 mr-1" />
-                Waves
-              </div>
-              <div className="text-white font-medium">{beach.waveHeight}m</div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center text-sm text-slate-400">
-                <Wind className="w-4 h-4 mr-1" />
-                Wind
-              </div>
-              <div className="text-white font-medium">
-                {beach.windSpeed}kt {beach.windDirection}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-700">
-            <span className="text-slate-400 text-sm">Last updated: {beach.lastUpdated}</span>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
+  const mapsUrl = `https://maps.google.com/?q=${beach.lat},${beach.lng}`
 
   return (
-    <Card
-      className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors cursor-pointer"
-      onClick={() => {
-        if (selectedBeach?._id === beach._id) {
-          onClick(null)
-        } else {
-          onClick(beach)
-        }
-      }}
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 300, damping: 24 }}
+      className={cn("group", className)}
     >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-3">
-            <MapPin className="w-4 h-4 text-blue-400" />
-            <div>
-              <h3 className="text-white font-medium">{beach.name}</h3>
-              <p className="text-slate-400 text-sm">
-                {beach.lat}, {beach.lng}
-              </p>
-            </div>
-          </div>
-          <Badge className={`${getConditionColor(getRatingLabel[beach.rating])} text-white text-xs`}>
-            {getRatingLabel[beach.rating]}
-          </Badge>
-        </div>
+      <Card className="bg-card/50 backdrop-blur-sm border-border hover:shadow-lg transition-shadow duration-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-lg text-card-foreground">{beach.name}</h3>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "text-xs",
+                    beach.position === "north"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+                  )}
+                >
+                  {beach.position}
+                </Badge>
+              </div>
 
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <div>
-            <div className="text-slate-400 text-xs">Swell</div>
-            <div className="text-white font-medium">{beach.swellHeight}m</div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "h-3 w-3",
+                        i < Math.floor(currentData.rating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                  ))}
+                  <span className="text-sm text-muted-foreground ml-1">{currentData.rating.toFixed(1)}</span>
+                </div>
+
+                <Badge className={cn("text-xs", quality.color)}>{quality.label}</Badge>
+              </div>
+            </div>
+
+            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="p-1 h-8 w-8">
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </motion.div>
+            </Button>
           </div>
-          <div>
-            <div className="text-slate-400 text-xs">Waves</div>
-            <div className="text-white font-medium">{beach.waveHeight}m</div>
+
+          <Button
+            variant="link"
+            size="sm"
+            className="justify-start p-0 h-auto text-xs text-muted-foreground hover:text-foreground"
+            rightIcon={<ExternalLink className="h-3 w-3" />}
+          >
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+              {formatCoordinates(beach.lat, beach.lng)}
+            </a>
+          </Button>
+        </CardHeader>
+
+        <CardContent className="pt-0">
+          {/* Metrics Grid */}
+          <motion.div
+            className="grid grid-cols-3 gap-4 mb-4"
+            key={selectedTimeIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Waves */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span className="text-sm font-medium text-muted-foreground">Waves</span>
+                <motion.svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="text-chart-1"
+                  style={{ transform: getDirectionArrow(currentData.waveDirection) }}
+                  animate={{ rotate: currentData.waveDirection }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                >
+                  <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+                </motion.svg>
+              </div>
+              <div className="text-lg font-bold text-foreground">{currentData.waveHeight}m</div>
+            </div>
+
+            {/* Swell */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span className="text-sm font-medium text-muted-foreground">Swell</span>
+                <motion.svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="text-chart-2"
+                  style={{ transform: getDirectionArrow(currentData.swellDirection) }}
+                  animate={{ rotate: currentData.swellDirection }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                >
+                  <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+                </motion.svg>
+              </div>
+              <div className="text-lg font-bold text-foreground">{currentData.swellHeight}m</div>
+              <div className="text-xs text-muted-foreground">@ {currentData.swellPeriod}s</div>
+            </div>
+
+            {/* Wind */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span className="text-sm font-medium text-muted-foreground">Wind</span>
+                <motion.svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="text-chart-3"
+                  style={{ transform: getDirectionArrow(currentData.windDirection) }}
+                  animate={{ rotate: currentData.windDirection }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                >
+                  <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+                </motion.svg>
+              </div>
+              <div className="text-lg font-bold text-foreground">{currentData.windSpeed}kt</div>
+            </div>
+          </motion.div>
+
+          {/* Sparkline */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-muted-foreground">Next 12h Wave Height</span>
+            </div>
+            <Sparkline data={sparklineData} className="h-8" />
           </div>
-          <div>
-            <div className="text-slate-400 text-xs">Wind</div>
-            <div className="text-white font-medium">{beach.windSpeed}kt</div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+
+          {/* Expandable Details */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                className="overflow-hidden"
+              >
+                <div className="border-t border-border pt-4">
+                  <h4 className="text-sm font-medium text-foreground mb-3">Next 6 Hours</h4>
+                  <div className="space-y-2">
+                    {beach.hourlyData.slice(selectedTimeIndex, selectedTimeIndex + 6).map((data, index) => (
+                      <div key={data.time} className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">
+                          {new Date(data.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span>{data.waveHeight}m</span>
+                          <span>{data.windSpeed}kt</span>
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={cn(
+                                  "h-2 w-2",
+                                  i < Math.floor(data.rating)
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-muted-foreground",
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }

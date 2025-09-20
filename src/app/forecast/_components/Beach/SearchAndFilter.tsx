@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Filter, Search } from "lucide-react"
 import { AddBeachDialog } from "./AddBeachDialog"
-import { AddBeach, Beach } from "@/interfaces/beach"
+import { AddBeach, Beach } from "@/interfaces/forecast"
 
 interface SearchAndFiltersProps {
   searchTerm: string

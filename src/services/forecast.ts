@@ -1,4 +1,4 @@
-import { Forecast } from "@/interfaces/beach";
+import { Forecast } from "@/interfaces/forecast";
 import { createAxiosInstance } from "./api";
 
 const api = createAxiosInstance('forecast')
