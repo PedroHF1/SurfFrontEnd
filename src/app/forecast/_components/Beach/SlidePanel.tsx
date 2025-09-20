@@ -9,8 +9,9 @@ import { applyFilters, getActiveFiltersCount, groupBeachesByName, sortBeaches } 
 import { FiltersSheet } from '../Filter'
 import { Header } from "../Header"
 import { SortDropdown } from '../SortDropdown'
-import { TimeBar } from "../TimeBar"
+import { HourBar, TimeBar } from "../TimeBar"
 import { BeachList } from './BeachList'
+import moment from 'moment'
 
 interface SlidingPanelProps {
   forecasts?: Forecast[]
@@ -39,10 +40,15 @@ export function SlidingPanel({
   onTogglePanel,
   onPanelExpand,
 }: SlidingPanelProps) {
-  const [selectedTime, setSelectedTime] = useState("2025-09-08T01:00:00+00:00")
+  const times = forecastExample.map((f) => f.time)
+
+    const firstDate = moment(times[0]).format("YYYY-MM-DD")
+  const [selectedDate, setSelectedDate] = useState(firstDate)
+  const [selectedTime, setSelectedTime] = useState(times[0])
+
   const [sortBy, setSortBy] = useState("rating")
   const [searchQuery, setSearchQuery] = useState("")
-  const times = forecastExample.map((f) => f.time)
+
   const selectedTimeIndex = times.indexOf(selectedTime)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [filters, setFilters] = useState<Filters>({
@@ -52,6 +58,28 @@ export function SlidingPanel({
     minSwellPeriod: 0,
     timeOfDay: [],
   })
+
+    const handleDateSelect = (date: string) => {
+    setSelectedDate(date)
+
+    const timesForDate = times.filter(time =>
+      moment(time).format("YYYY-MM-DD") === date
+    ).sort((a, b) => moment(a).valueOf() - moment(b).valueOf())
+
+    if (timesForDate.length > 0) {
+      setSelectedTime(timesForDate[0])
+    }
+  }
+
+  const handleTimeSelect = (time: string) => {
+    const timeDate = moment(time).format("YYYY-MM-DD")
+
+    if (timeDate !== selectedDate) {
+      setSelectedDate(timeDate)
+    }
+
+    setSelectedTime(time)
+  }
 
   const processedData = useMemo(() => {
     const groupedBeaches = groupBeachesByName(forecastExample as any)
@@ -96,6 +124,9 @@ const handleAddBeach = async (payload: AddBeach) => {
       onClick={onPanelExpand}
       >
       <Header
+      handleTimeSelect={handleTimeSelect}
+      selectedDate={selectedDate}
+      selectedTime={selectedTime}
         beachCount={processedData.filteredCount}
         searchQuery={searchQuery}
         isPanelExpanded={isPanelExpanded}
@@ -103,11 +134,11 @@ const handleAddBeach = async (payload: AddBeach) => {
         onAddBeach={handleAddBeach}
         onTogglePanel={onTogglePanel}
         onOpenFilters={() => setIsFiltersOpen(true)}
+        dateTimes={times}
+        onDateSelect={handleDateSelect}
       />
 
-      <TimeBar times={times} selectedTime={selectedTime} onTimeSelect={setSelectedTime} />
-
-      <main className="container mx-auto px-4 py-6 ">
+      <main className="container mx-auto px-4 py-6 overflow-y-auto no-scrollbar h-[60vh]">
         <motion.div
           className="flex items-center justify-between mb-6"
           initial={{ opacity: 0, y: 20 }}
@@ -129,7 +160,7 @@ const handleAddBeach = async (payload: AddBeach) => {
           <SortDropdown sortBy={sortBy} onSortChange={setSortBy} />
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className='overflow-y-auto h-[50vh]'>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} >
           <BeachList
             beaches={processedData.beaches}
             selectedTimeIndex={selectedTimeIndex >= 0 ? selectedTimeIndex : 0}

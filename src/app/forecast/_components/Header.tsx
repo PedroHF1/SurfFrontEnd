@@ -7,6 +7,9 @@ import { motion } from "framer-motion"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { AddBeachDialog } from "./Beach/AddBeachDialog"
 import { AddBeach } from "@/interfaces/forecast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import moment from "moment"
+import { HourBar } from "./TimeBar"
 
 interface HeaderProps {
   beachCount: number
@@ -16,9 +19,16 @@ interface HeaderProps {
   onAddBeach: (payload: AddBeach) => void
   onOpenFilters: () => void
   onTogglePanel: () => void
+  dateTimes: string[];
+  onDateSelect: (date: string) => void
+  selectedDate: string
+  selectedTime: string
+  handleTimeSelect: (time: string) => void
 }
 
-export function Header({ beachCount,onTogglePanel, searchQuery, isPanelExpanded, onSearchChange, onAddBeach, onOpenFilters }: HeaderProps) {
+export function Header({ beachCount,onTogglePanel, dateTimes, onDateSelect, searchQuery, isPanelExpanded, onSearchChange, onAddBeach, onOpenFilters, handleTimeSelect, selectedDate, selectedTime }: HeaderProps) {
+  const date = dateTimes.map(time => moment(time).format("YYYY-MM-DD"))
+  const dateFormatted = new Set(date)
   return (
     <motion.header
       className="border-b border-border bg-card/50 backdrop-blur-sm"
@@ -58,10 +68,33 @@ export function Header({ beachCount,onTogglePanel, searchQuery, isPanelExpanded,
                 className="pl-10 w-64 bg-background/50"
               />
             </div>
+
+            <div>
+              <Select defaultValue={Array.from(dateFormatted)[0]} onValueChange={onDateSelect}>
+                <SelectTrigger>
+                  <span className="text-gray-500 text-sm">Date: </span>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                {Array.from(dateFormatted).map((date) => (
+                  <SelectItem key={date} value={date}>
+                    {date}
+                  </SelectItem>
+                ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+             <HourBar
+                    times={dateTimes}
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                    onTimeSelect={handleTimeSelect}
+                  />
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm" onClick={onOpenFilters} className="gap-2" leftIcon={<Filter className="h-4 w-4" />}>
+            <Button  variant="secondary" size="sm" onClick={onOpenFilters} className="gap-2 bg-gradient-to-r to-slate-100 from-slate-300 dark:to-slate-400 text-primary dark:from-slate-600 hover:bg-gradient-to-r dark:hover:to-slate-400 dark:hover:from-slate-600" leftIcon={<Filter className="h-4 w-4 " />}>
               All Conditions
             </Button>
 

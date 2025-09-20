@@ -40,15 +40,12 @@ const queryClient = new QueryClient()
               <PopoverTrigger className='hover:cursor-pointer'>
                   <Avatar className="h-10 w-10">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Surfer" />
-                    <AvatarFallback className="bg-slate-700 text-white">SF</AvatarFallback>
+                    <AvatarFallback className="bg-muted-foreground text-white">SF</AvatarFallback>
                   </Avatar>
               </PopoverTrigger>
                <PopoverContent className="w-52 ">
             <Flex className="text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer">
                    <UserCircle2  size={22}  /> Profile
-                </Flex>
-                <Flex className="text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer">
-                  <IconSettings stroke={2} size={22} /> Settings
                 </Flex>
                 <Flex className="text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer">
                   <IconLogout2 stroke={2} size={22} /> Sign out

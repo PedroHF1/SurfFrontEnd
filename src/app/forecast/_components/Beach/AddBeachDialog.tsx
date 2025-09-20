@@ -44,7 +44,7 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[#550C18] bg-gradient-to-r from-[#550C18] to-[#550C18]/70 hover:bg-[#D1DAC0]" leftIcon={<Plus className="w-4 h-4 mr-2" />}>
+        <Button className=" bg-gradient-to-r from-slate-100 to-slate-300 dark:from-slate-400 text-primary dark:to-slate-600 hover:bg-gradient-to-r dark:hover:from-slate-400 dark:hover:to-slate-600" size={'sm'} leftIcon={<Plus className="w-4 h-4 mr-2" />}>
           Add Beach
         </Button>
       </DialogTrigger>
