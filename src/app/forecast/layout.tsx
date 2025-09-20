@@ -21,7 +21,7 @@ const queryClient = new QueryClient()
   return (
     <QueryClientProvider client={queryClient}>
     <div>
-      <header className="fixed top-4 left-5 right-5 rounded-full z-50 border-b border-slate-700 bg-card backdrop-blur-sm">
+      <header className="fixed top-4 left-5 right-5 rounded-full z-50 border-b shadow-md border-slate-500 bg-card backdrop-blur-sm">
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -44,13 +44,13 @@ const queryClient = new QueryClient()
                   </Avatar>
               </PopoverTrigger>
                <PopoverContent className="w-52 ">
-            <Flex className="text-slate-200 gap-2 p-2 items-center rounded-md hover:bg-slate-700 focus:bg-slate-700 cursor-pointer">
+            <Flex className="text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer">
                    <UserCircle2  size={22}  /> Profile
                 </Flex>
-                <Flex className="text-slate-200 gap-2 p-2 items-center rounded-md hover:bg-slate-700 focus:bg-slate-700 cursor-pointer">
+                <Flex className="text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer">
                   <IconSettings stroke={2} size={22} /> Settings
                 </Flex>
-                <Flex className="text-slate-200 gap-2 p-2 items-center rounded-md hover:bg-slate-700 focus:bg-slate-700 cursor-pointer">
+                <Flex className="text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer">
                   <IconLogout2 stroke={2} size={22} /> Sign out
                 </Flex>
       </PopoverContent>
