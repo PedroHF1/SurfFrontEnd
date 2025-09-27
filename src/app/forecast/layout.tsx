@@ -8,8 +8,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Image from "next/image";
 import { Flex } from '@/components/Flex';
-import { UserCircle2 } from 'lucide-react';
+import { Grid2X2, LayoutDashboard, UserCircle2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Link from 'next/link';
 
 export default function ForecastLayout({
   children,
@@ -28,11 +29,19 @@ const queryClient = new QueryClient()
             {/* <div className="">
               <Image src="/favicon.ico" alt="Logo" width={32} height={32} />
             </div> */}
+
             <div>
               <h1 className="text-xl font-bold text-foreground">WebSurf</h1>
               <p className="text-sm text-foreground">Track the perfect surf</p>
             </div>
           </div>
+
+          <Flex className=''>
+            <Link href='/dashboard' className='flex items-center gap-2 hover:underline'>
+              <LayoutDashboard size={16} />Dashboard
+            </Link>
+          </Flex>
+
       <Flex className='items-center gap-4'>
         <ThemeToggle />
 
