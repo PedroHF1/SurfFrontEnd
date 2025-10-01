@@ -36,11 +36,11 @@ const queryClient = new QueryClient()
             </div>
           </div>
 
-          <Flex className=''>
+          {/* <Flex className=''>
             <Link href='/dashboard' className='flex items-center gap-2 hover:underline'>
               <LayoutDashboard size={16} />Dashboard
             </Link>
-          </Flex>
+          </Flex> */}
 
       <Flex className='items-center gap-4'>
         <ThemeToggle />
