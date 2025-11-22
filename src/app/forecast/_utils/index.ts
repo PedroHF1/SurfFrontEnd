@@ -51,7 +51,7 @@ export const sortBeaches = (beaches: ProcessedBeach[], sortBy: string): Processe
     case "name":
       return [...beaches].sort((a, b) => a.name.localeCompare(b.name))
     default:
-      return beaches
+      return [...beaches].sort((a, b) => (b.hourlyData[0]?.rating || 0) - (a.hourlyData[0]?.rating || 0))
   }
 }
 

@@ -1,10 +1,12 @@
-import { create } from "zustand";
-import { AuthContextProps, AuthContextUser } from "./props";
-import { createToken, deleteToken, getToken, validToken } from "@/helpers/token";
-import { jwtDecode } from "jwt-decode";
-import { login, register} from "@/services/auth";
-import React from "react";
-import { signIn, signOut } from "next-auth/react";
+'use client';
+
+import { create } from 'zustand';
+import { AuthContextProps, AuthContextUser } from './props';
+import { createToken, deleteToken, getToken, validToken } from '@/helpers/token';
+import { jwtDecode } from 'jwt-decode';
+import { login, register } from '@/services/auth';
+import React from 'react';
+import { signIn, signOut } from 'next-auth/react';
 
 const loadInitialState = () => {
   const token = getToken();
@@ -27,25 +29,25 @@ const useAuthStore = create<AuthContextProps>((set, get) => ({
   token: getToken() || null,
   login: async (credentials) => {
     try {
-      const response = await login(credentials)
-       const token = response.token;
+      const response = await login(credentials);
+      const token = response.token;
 
       if (!token) {
         throw new Error('No token received from server');
       }
       createToken(token);
 
-       const decodedToken = jwtDecode<AuthContextUser>(token);
-       set({
+      const decodedToken = jwtDecode<AuthContextUser>(token);
+      set({
         ...decodedToken,
         token: token,
-        user: decodedToken
+        user: decodedToken,
       });
     } catch (error) {
-        deleteToken();
+      deleteToken();
       set({
         token: null,
-        user: null
+        user: null,
       });
       throw error;
     }
@@ -53,16 +55,16 @@ const useAuthStore = create<AuthContextProps>((set, get) => ({
 
   register: async (credentials) => {
     try {
-      await register(credentials)
+      await register(credentials);
     } catch (error) {
       throw error;
     }
   },
 
-  logout:  () => {
+  logout: () => {
     deleteToken();
     window.location.pathname = '/login';
-    set({ user: null, token: null, });
+    set({ user: null, token: null });
   },
 
   user: loadInitialState(),
@@ -72,11 +74,11 @@ const useAuthStore = create<AuthContextProps>((set, get) => ({
       validToken();
     } catch (error) {
       deleteToken();
-      set({ user: null, token: null, });
+      set({ user: null, token: null });
       return;
     }
   },
-}))
+}));
 
 useAuthStore.getState().verifyToken();
 
@@ -91,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextProps => {
   const context = React.useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within a AuthProvider");
+    throw new Error('useAuth must be used within a AuthProvider');
   }
   return context;
 };
