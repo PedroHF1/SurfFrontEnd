@@ -3,6 +3,12 @@
 import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SelectItem } from "@/components/ui/select"
+import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { useTheme } from "next-themes"
 
 interface SparklineProps {
   data: number[]
@@ -10,7 +16,14 @@ interface SparklineProps {
   color?: string
 }
 
-export function Sparkline({ data, className, color = "rgb(var(--chart-1))" }: SparklineProps) {
+const chartConfig = {
+  Wave: {
+    label: "Wave",
+    color: "var(--chart-1)",
+  },
+} satisfies ChartConfig
+
+export function Sparkline({ data, className, color = "gray" }: SparklineProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const { path, points, minValue, maxValue } = useMemo(() => {
@@ -43,80 +56,68 @@ export function Sparkline({ data, className, color = "rgb(var(--chart-1))" }: Sp
   }
 
   return (
-    <div className={cn("relative", className)}>
-      <svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 200 32"
-        className="overflow-visible"
-        onMouseLeave={() => setHoveredIndex(null)}
-      >
-        {/* Background area */}
-        <defs>
-          <linearGradient id="sparkline-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor={color} stopOpacity="0.2" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.05" />
-          </linearGradient>
-        </defs>
-
-        <path
-          d={`${path} L ${points[points.length - 1]?.x || 0} 28 L ${points[0]?.x || 0} 28 Z`}
-          fill="url(#sparkline-gradient)"
-        />
-
-        {/* Main line */}
-        <motion.path
-          d={path}
-          fill="none"
-          stroke={color}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-        />
-
-        {/* Interactive points */}
-        {points.map((point, index) => (
-          <g key={index}>
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r="8"
-              fill="transparent"
-              className="cursor-pointer"
-              onMouseEnter={() => setHoveredIndex(index)}
-            />
-
-            {hoveredIndex === index && (
-              <motion.circle
-                cx={point.x}
-                cy={point.y}
-                r="3"
-                fill={color}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              />
-            )}
-          </g>
-        ))}
-      </svg>
-
-      {/* Tooltip */}
-      {hoveredIndex !== null && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-popover text-popover-foreground text-xs px-2 py-1 rounded shadow-md border border-border"
-          style={{
-            left: `${(hoveredIndex / (data.length - 1)) * 100}%`,
-          }}
+    <Card className="p-0 border-none shadow-none max-h-[200px]">
+      <CardContent className="p-0">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[130px] w-full"
         >
-          {data[hoveredIndex]?.toFixed(1)}m
-        </motion.div>
-      )}
-    </div>
+          <AreaChart
+            data={data.map((value, i) => ({
+              index: i,
+              height: value,
+            }))}
+          >
+            <defs>
+              <linearGradient id="fillWave" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor={color}
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={color}
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="height"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              minTickGap={32}
+              tickFormatter={i => `${i}`}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  indicator="dot"
+                  formatter={(value, name) => {
+                    return <div className="flex items-center gap-4">
+                      <span className="capitalize">{name}: </span>
+                      <span className="font-semibold">{value}m</span>
+                      </div>
+                  }}
+                />
+              }
+            />
+            <Area
+              dataKey="height"
+              type="natural"
+              fill="url(#fillWave)"
+              stroke={color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 5, fill: color, stroke: "#fff", strokeWidth: 2 }}
+              isAnimationActive={true}
+            />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
 }
