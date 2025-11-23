@@ -9,6 +9,7 @@ import { Flex } from '@/components/Flex';
 import { UserCircle2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth';
 
 export default function ForecastLayout({
   children,
@@ -16,6 +17,7 @@ export default function ForecastLayout({
   children: React.ReactNode;
 }>) {
   const queryClient = new QueryClient();
+  const { logout } = useAuth();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -54,7 +56,7 @@ export default function ForecastLayout({
                     <Flex className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'>
                       <UserCircle2 size={22} /> Profile
                     </Flex>
-                    <Flex className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'>
+                    <Flex onClick={logout} className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'>
                       <IconLogout2 stroke={2} size={22} /> Sign out
                     </Flex>
                   </PopoverContent>

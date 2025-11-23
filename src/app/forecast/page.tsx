@@ -6,12 +6,15 @@ import { SlidingPanel } from './_components/Beach/SlidePanel';
 import { useQuery } from '@tanstack/react-query';
 import { getForecast } from '@/services/forecast';
 import { Beach } from '@/interfaces/forecast';
+import { QuickGuideDialog, useQuickGuide } from './_components/QuickGuideDialog';
+
 
 export default function Forecast() {
   const [selectedBeach, setSelectedBeach] = useState<Beach | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCondition, setFilterCondition] = useState<string>('all');
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+  const { showGuide, closeGuide } = useQuickGuide();
 
   const { data = [], isFetching } = useQuery({
     retry: false,
@@ -37,19 +40,22 @@ export default function Forecast() {
       {isFetching ? (
         <div></div>
       ) : (
-        <SlidingPanel
-          forecasts={data}
-          selectedBeach={selectedBeach}
-          searchTerm={searchTerm}
-          filterCondition={filterCondition}
-          isPanelExpanded={isPanelExpanded}
-          onSearchChange={setSearchTerm}
-          onFilterChange={setFilterCondition}
-          onBeachSelect={setSelectedBeach}
-          onBeachDeselect={() => setSelectedBeach(null)}
-          onTogglePanel={() => setIsPanelExpanded(!isPanelExpanded)}
-          onPanelExpand={() => setIsPanelExpanded(true)}
-        />
+        <>
+          <SlidingPanel
+            forecasts={data}
+            selectedBeach={selectedBeach}
+            searchTerm={searchTerm}
+            filterCondition={filterCondition}
+            isPanelExpanded={isPanelExpanded}
+            onSearchChange={setSearchTerm}
+            onFilterChange={setFilterCondition}
+            onBeachSelect={setSelectedBeach}
+            onBeachDeselect={() => setSelectedBeach(null)}
+            onTogglePanel={() => setIsPanelExpanded(!isPanelExpanded)}
+            onPanelExpand={() => setIsPanelExpanded(true)}
+          />
+          <QuickGuideDialog isOpen={showGuide && !isFetching} onClose={closeGuide} />
+        </>
       )}
     </div>
   );
