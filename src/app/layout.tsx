@@ -43,6 +43,12 @@ export default function RootLayout({
             {/* </SessionProvider> */}
           </PostHogProvider>
         </AuthProvider>
+
+        <script
+          async
+          src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3105347540753745'
+          crossOrigin='anonymous'
+        ></script>
       </body>
     </html>
   );
