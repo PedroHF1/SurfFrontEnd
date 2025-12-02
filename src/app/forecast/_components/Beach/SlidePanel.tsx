@@ -123,6 +123,9 @@ export function SlidingPanel({
     }
   };
 
+  const hasBeaches =
+    forecasts && forecasts.length > 0 && forecasts[0].forecast && forecasts[0].forecast.length > 0;
+
   return (
     <div
       className={`fixed left-0 right-0 bg-background overflow-auto backdrop-blur-sm border-t transition-all duration-300 ease-in-out z-40 ${
@@ -146,6 +149,7 @@ export function SlidingPanel({
         onOpenFilters={() => setIsFiltersOpen(true)}
         dateTimes={times}
         onDateSelect={handleDateSelect}
+        hasBeaches={hasBeaches}
       />
 
       <main className='container mx-auto px-4 py-6 overflow-y-auto no-scrollbar h-[70vh]'>

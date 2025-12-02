@@ -30,6 +30,7 @@ interface HeaderProps {
   selectedDate: string;
   selectedTime: string;
   handleTimeSelect: (time: string) => void;
+  hasBeaches: boolean;
 }
 
 export function Header({
@@ -45,6 +46,7 @@ export function Header({
   handleTimeSelect,
   selectedDate,
   selectedTime,
+  hasBeaches,
 }: HeaderProps) {
   const date = dateTimes.map((time) => moment(time).format('YYYY-MM-DD'));
   const dateFormatted = new Set(date);
@@ -97,31 +99,35 @@ export function Header({
               </Button>
             </motion.h1>
 
-            <div className='relative'>
-              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-              <Input
-                placeholder='Buscar praias...'
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className='pl-10 w-64 bg-background/50'
-              />
-            </div>
+            {hasBeaches && (
+              <>
+                <div className='relative'>
+                  <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+                  <Input
+                    placeholder='Buscar praias...'
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className='pl-10 w-64 bg-background/50'
+                  />
+                </div>
 
-            <div>
-              <Select defaultValue={Array.from(dateFormatted)[0]} onValueChange={onDateSelect}>
-                <SelectTrigger>
-                  <span className='text-gray-500 text-sm'>Data: </span>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from(dateFormatted).map((date) => (
-                    <SelectItem key={date} value={date}>
-                      {date}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <div>
+                  <Select defaultValue={Array.from(dateFormatted)[0]} onValueChange={onDateSelect}>
+                    <SelectTrigger>
+                      <span className='text-gray-500 text-sm'>Data: </span>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from(dateFormatted).map((date) => (
+                        <SelectItem key={date} value={date}>
+                          {date}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
 
             <HourBar
               times={dateTimes}

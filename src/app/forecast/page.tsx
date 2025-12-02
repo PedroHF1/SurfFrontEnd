@@ -8,6 +8,7 @@ import { getForecast } from '@/services/forecast';
 import { Beach } from '@/interfaces/forecast';
 import { QuickGuideDialog, useQuickGuide } from './_components/QuickGuideDialog';
 import { ForecastSkeleton } from '@/components/skeletons/ForecastSkeleton';
+import { EmptyStatePopup } from './_components/EmptyStatePopup';
 
 export default function Forecast() {
   const [selectedBeach, setSelectedBeach] = useState<Beach | null>(null);
@@ -36,6 +37,8 @@ export default function Forecast() {
         }))
       : [{ lat: 0, lng: 0 }];
 
+  const hasBeaches = data && data.length > 0 && data[0].forecast && data[0].forecast.length > 0;
+
   return (
     <div className='h-screen overflow-hidden bg-card'>
       <div className='h-screen' onClick={() => setIsPanelExpanded(false)}>
@@ -59,6 +62,7 @@ export default function Forecast() {
             onPanelExpand={() => setIsPanelExpanded(true)}
             refetch={refetch}
           />
+          <EmptyStatePopup isVisible={!hasBeaches && !isFetching} />
           <QuickGuideDialog isOpen={showGuide && !isFetching} onClose={closeGuide} />
         </>
       )}
