@@ -238,6 +238,21 @@ export function SlidingPanel({
         filters={filters}
         onFiltersChange={setFilters}
       />
+
+      <script
+        async
+        src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3105347540753745'
+        crossOrigin='anonymous'
+      ></script>
+      <ins
+        className='adsbygoogle'
+        style={{ display: 'block' }}
+        data-ad-client='ca-pub-3105347540753745'
+        data-ad-slot='7656621989'
+        data-ad-format='auto'
+        data-full-width-responsive='true'
+      ></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
   );
 }
