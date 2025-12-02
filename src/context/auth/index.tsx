@@ -10,7 +10,7 @@ import { signIn, signOut } from 'next-auth/react';
 
 const loadInitialState = () => {
   const token = getToken();
-  if (!token) return { email: null, name: null, id: null };
+  if (!token) return null;
 
   try {
     validToken(token);
@@ -19,7 +19,7 @@ const loadInitialState = () => {
     return decodedToken;
   } catch (error) {
     deleteToken();
-    return { email: null, name: null, id: null };
+    return null;
   }
 };
 

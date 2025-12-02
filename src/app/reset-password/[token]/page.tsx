@@ -15,7 +15,7 @@ import { AxiosError } from 'axios';
 import { Lock, CheckCircle2, AlertCircle, GalleryVerticalEnd } from 'lucide-react';
 
 interface Props {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
 export default function ResetPasswordPage({ params }: Props) {
