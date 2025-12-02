@@ -56,8 +56,8 @@ export function Header({
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
     >
       <div className='mx-auto px-4 py-4'>
-        <div className='flex items-center justify-between gap-4'>
-          <div className='flex items-center gap-4'>
+        <div className='flex items-center max-md:flex-col max-md:w-full justify-between gap-4'>
+          <div className='flex items-center max-md:flex-col max-md:w-full gap-4'>
             <Button
               variant='ghost'
               size='sm'
@@ -65,7 +65,7 @@ export function Header({
                 e.stopPropagation();
                 onTogglePanel();
               }}
-              className='text-slate-400 hover:text-white'
+              className='text-slate-400 hover:text-white max-md:hidden'
             >
               {isPanelExpanded ? (
                 <ChevronDown className='w-5 h-5' />
@@ -74,12 +74,27 @@ export function Header({
               )}
             </Button>
             <motion.h1
-              className='text-2xl font-bold text-foreground'
+              className='text-2xl font-bold text-foreground max-md:flex'
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.1 }}
             >
               Praias
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePanel();
+                }}
+                className='text-slate-400 hover:text-white max-md:flex hidden'
+              >
+                {isPanelExpanded ? (
+                  <ChevronDown className='w-5 h-5' />
+                ) : (
+                  <ChevronUp className='w-5 h-5' />
+                )}
+              </Button>
             </motion.h1>
 
             <div className='relative'>

@@ -125,7 +125,7 @@ export function SlidingPanel({
 
   return (
     <div
-      className={`fixed left-0 right-0 bg-background backdrop-blur-sm border-t transition-all duration-300 ease-in-out z-40 ${
+      className={`fixed left-0 right-0 bg-background overflow-auto backdrop-blur-sm border-t transition-all duration-300 ease-in-out z-40 ${
         isPanelExpanded ? 'bottom-0 top-[170px]' : '-bottom-[250px]'
       }`}
       style={{
