@@ -46,11 +46,14 @@ export default function RootLayout({
           </PostHogProvider>
         </AuthProvider>
 
+        <div data-tf-live='01KBFGH7271X07ZS38FR4835X5'></div>
+
         <script
           async
           src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3105347540753745'
           crossOrigin='anonymous'
         ></script>
+        <script src='//embed.typeform.com/next/embed.js'></script>
       </body>
     </html>
   );

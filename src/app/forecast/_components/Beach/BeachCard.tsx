@@ -55,6 +55,21 @@ export function BeachCard({ beach, selectedTimeIndex, className, onDelete }: Bea
     }
   };
 
+  const formatPosition = (position: string) => {
+    switch (position) {
+      case 'north':
+        return 'Norte';
+      case 'south':
+        return 'Sul';
+      case 'east':
+        return 'Leste';
+      case 'west':
+        return 'Oeste';
+      default:
+        return position;
+    }
+  };
+
   return (
     <motion.div
       layout
@@ -80,7 +95,7 @@ export function BeachCard({ beach, selectedTimeIndex, className, onDelete }: Bea
                       : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
                   )}
                 >
-                  {beach.position}
+                  {formatPosition(beach.position)}
                 </Badge>
               </div>
 
