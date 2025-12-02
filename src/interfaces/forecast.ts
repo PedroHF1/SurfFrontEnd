@@ -21,6 +21,7 @@ export interface Forecast {
 }
 
 export interface ProcessedBeach {
+  _id?: string
   name: string
   position: string
   lat: number

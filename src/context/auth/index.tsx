@@ -78,6 +78,10 @@ const useAuthStore = create<AuthContextProps>((set, get) => ({
       return;
     }
   },
+
+  setUser: (user: AuthContextUser) => {
+    set({ user });
+  },
 }));
 
 useAuthStore.getState().verifyToken();

@@ -18,11 +18,6 @@ export function middleware(req: NextRequest) {
   const pathname = url.pathname;
   const hostname = url.origin;
 
-  // if (hostname === 'https://app.voeja.us') {
-  //   const url = 'https://b2b.voeja.us';
-  //   return NextResponse.redirect(new URL(url));
-  // }
-
   const sessionCookie = req.cookies.get('__session');
   if (!sessionCookie) return redirectToLogin(req);
 

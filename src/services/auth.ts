@@ -12,3 +12,17 @@ export const register = async (payload: { name: string, email: string, password:
   const { data } = await api.post('', payload);
   return data;
 };
+
+export const forgotPassword = async (email: string): Promise<{ message: string }> => {
+  const { data } = await api.post('/forgot-password', { email });
+  return data;
+};
+
+export const resetPassword = async (payload: { 
+  email: string; 
+  token: string; 
+  password: string 
+}): Promise<{ message: string }> => {
+  const { data } = await api.post('/reset-password', payload);
+  return data;
+};

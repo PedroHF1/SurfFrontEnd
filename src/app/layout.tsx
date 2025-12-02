@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { PostHogProvider } from '@/context/logs/posthog';
 import { AuthProvider } from '@/context/auth';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'WebSurf - Track the Perfect Surf',
+  title: 'WebSurf',
   description: 'Get real-time surf conditions and forecasts for beaches worldwide.',
 };
 
@@ -40,6 +41,7 @@ export default function RootLayout({
             >
               {children}
             </ThemeProvider>
+            <Toaster />
             {/* </SessionProvider> */}
           </PostHogProvider>
         </AuthProvider>

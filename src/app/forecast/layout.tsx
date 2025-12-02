@@ -6,10 +6,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Image from 'next/image';
 import { Flex } from '@/components/Flex';
-import { UserCircle2 } from 'lucide-react';
+import { LayoutDashboard, UserCircle2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ForecastLayout({
   children,
@@ -17,7 +18,8 @@ export default function ForecastLayout({
   children: React.ReactNode;
 }>) {
   const queryClient = new QueryClient();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const router = useRouter();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -32,15 +34,16 @@ export default function ForecastLayout({
 
                 <div>
                   <h1 className='text-xl font-bold text-foreground'>WebSurf</h1>
-                  <p className='text-sm text-foreground'>Track the perfect surf</p>
+                  <p className='text-sm text-foreground'>Acompanhe o surf perfeito</p>
                 </div>
               </div>
 
-              {/* <Flex className=''>
-            <Link href='/dashboard' className='flex items-center gap-2 hover:underline'>
-              <LayoutDashboard size={16} />Dashboard
-            </Link>
-          </Flex> */}
+              <Flex className=''>
+                <Link href='/dashboard' className='flex items-center gap-2 hover:underline'>
+                  <LayoutDashboard size={16} />
+                  Dashboard
+                </Link>
+              </Flex>
 
               <Flex className='items-center gap-4'>
                 <ThemeToggle />
@@ -49,15 +52,23 @@ export default function ForecastLayout({
                   <PopoverTrigger className='hover:cursor-pointer'>
                     <Avatar className='h-10 w-10'>
                       <AvatarImage src='/placeholder.svg?height=32&width=32' alt='Surfer' />
-                      <AvatarFallback className='bg-muted-foreground text-white'>SF</AvatarFallback>
+                      <AvatarFallback className='bg-muted-foreground text-white'>
+                        {user?.name?.[0]?.toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   </PopoverTrigger>
                   <PopoverContent className='w-52 '>
-                    <Flex className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'>
-                      <UserCircle2 size={22} /> Profile
+                    <Flex
+                      onClick={() => router.push('/dashboard/profile')}
+                      className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'
+                    >
+                      <UserCircle2 size={22} /> Perfil
                     </Flex>
-                    <Flex onClick={logout} className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'>
-                      <IconLogout2 stroke={2} size={22} /> Sign out
+                    <Flex
+                      onClick={logout}
+                      className='text-primary gap-2 p-2 items-center rounded-md hover:bg-muted focus:bg-muted cursor-pointer'
+                    >
+                      <IconLogout2 stroke={2} size={22} /> Sair
                     </Flex>
                   </PopoverContent>
                 </Popover>

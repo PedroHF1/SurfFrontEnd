@@ -50,7 +50,7 @@ export function Header({
   const dateFormatted = new Set(date);
   return (
     <motion.header
-      className='border-b border-border bg-card/50 backdrop-blur-sm'
+      className='border-b border-border bg-card/50 backdrop-blur-sm max-md:overflow-auto'
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
@@ -79,13 +79,13 @@ export function Header({
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.1 }}
             >
-              Surf Spots ({beachCount})
+              Praias
             </motion.h1>
 
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
               <Input
-                placeholder='Search beaches...'
+                placeholder='Buscar praias...'
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className='pl-10 w-64 bg-background/50'
@@ -95,7 +95,7 @@ export function Header({
             <div>
               <Select defaultValue={Array.from(dateFormatted)[0]} onValueChange={onDateSelect}>
                 <SelectTrigger>
-                  <span className='text-gray-500 text-sm'>Date: </span>
+                  <span className='text-gray-500 text-sm'>Data: </span>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -124,7 +124,7 @@ export function Header({
               className='gap-2 bg-gradient-to-r to-slate-100 from-slate-300 dark:to-slate-400 text-primary dark:from-slate-600 hover:bg-gradient-to-r dark:hover:to-slate-400 dark:hover:from-slate-600'
               leftIcon={<Filter className='h-4 w-4 ' />}
             >
-              All Conditions
+              Todas Condições
             </Button>
 
             <AddBeachDialog onAddBeach={onAddBeach} />

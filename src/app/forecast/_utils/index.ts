@@ -3,10 +3,10 @@ import { Filters } from "../../../types/filter";
 
 
 export const getQualityLabel = (rating: number): { label: string; color: string } => {
-  if (rating >= 4.5) return { label: "Epic", color: "bg-green-500" }
-  if (rating >= 3.5) return { label: "Good", color: "bg-blue-500" }
-  if (rating >= 2.5) return { label: "Fair", color: "bg-yellow-500" }
-  if (rating >= 1.5) return { label: "Poor", color: "bg-orange-500" }
+  if (rating >= 4.5) return { label: "Épico", color: "bg-green-500" }
+  if (rating >= 3.5) return { label: "Bom", color: "bg-blue-500" }
+  if (rating >= 2.5) return { label: "Médio", color: "bg-yellow-500" }
+  if (rating >= 1.5) return { label: "Fraco", color: "bg-orange-500" }
   return { label: "Flat", color: "bg-red-500" }
 }
 
@@ -17,6 +17,7 @@ export const groupBeachesByName = (forecastData: Forecast[]): ProcessedBeach[] =
     forecast.forEach((beach) => {
       if (!beachMap.has(beach.name)) {
         beachMap.set(beach.name, {
+          _id: beach._id,
           name: beach.name,
           position: beach.position,
           lat: beach.lat,
@@ -64,19 +65,14 @@ export const applyFilters = (
     const currentData = beach.hourlyData[selectedTimeIndex]
     if (!currentData) return false
 
-    // Min rating filter
     if (currentData.rating < filters.minRating) return false
 
-    // Position filter
     if (filters.position !== "all" && beach.position !== filters.position) return false
 
-    // Max wind filter
     if (currentData.windSpeed > filters.maxWind) return false
 
-    // Min swell period filter
     if (currentData.swellPeriod < filters.minSwellPeriod) return false
 
-    // Time of day filter
     if (filters.timeOfDay.length > 0) {
       const hour = new Date(currentData.time).getHours()
       const timeOfDayMap = {

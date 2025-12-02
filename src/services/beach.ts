@@ -6,3 +6,7 @@ export const createBeach = async (payload: any) => {
   const {data} = await api.post('', payload);
   return data;
 }
+
+export const deleteBeach = async (beachId: string) => {
+  await api.delete(`/${beachId}`);
+}

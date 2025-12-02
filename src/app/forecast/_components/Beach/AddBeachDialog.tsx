@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -6,26 +6,32 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AddBeach } from "@/interfaces/forecast"
-import { Plus } from "lucide-react"
-import { useState } from "react"
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { AddBeach } from '@/interfaces/forecast';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
 interface AddBeachDialogProps {
-  onAddBeach: (beach: AddBeach) => void
+  onAddBeach: (beach: AddBeach) => void;
 }
 
 export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const [newBeach, setNewBeach] = useState({
-    name: "",
+    name: '',
     position: '',
-    lat: "",
-    lng: "",
-  })
+    lat: '',
+    lng: '',
+  });
 
   const handleSubmit = () => {
     if (newBeach.name && newBeach.lat && newBeach.lng) {
@@ -33,165 +39,159 @@ export function AddBeachDialog({ onAddBeach }: AddBeachDialogProps) {
         name: newBeach.name,
         lat: Number.parseFloat(newBeach.lat),
         lng: Number.parseFloat(newBeach.lng),
-        position: newBeach.position
-      }
-      onAddBeach(beach)
-      setNewBeach({ name: "", lat: "", lng: "", position: '' })
-      setIsOpen(false)
+        position: newBeach.position,
+      };
+      onAddBeach(beach);
+      setNewBeach({ name: '', lat: '', lng: '', position: '' });
+      setIsOpen(false);
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className=" bg-gradient-to-r from-slate-100 to-slate-300 dark:from-slate-400 text-primary dark:to-slate-600 hover:bg-gradient-to-r dark:hover:from-slate-400 dark:hover:to-slate-600" size={'sm'} leftIcon={<Plus className="w-4 h-4 mr-2" />}>
-          Add Beach
+        <Button
+          className=' bg-gradient-to-r from-slate-100 to-slate-300 dark:from-slate-400 text-primary dark:to-slate-600 hover:bg-gradient-to-r dark:hover:from-slate-400 dark:hover:to-slate-600'
+          size={'sm'}
+          leftIcon={<Plus className='w-4 h-4 mr-2' />}
+        >
+          Adicionar Praia
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-background">
+      <DialogContent className='bg-background'>
         <DialogHeader>
-          <DialogTitle >Add New Beach</DialogTitle>
-          <DialogDescription className="text-slate-500">
-            Register a new surf spot to track conditions
+          <DialogTitle>Adicionar Nova Praia</DialogTitle>
+          <DialogDescription className='text-slate-500'>
+            Cadastre um novo pico de surf para acompanhar as condições
           </DialogDescription>
         </DialogHeader>
-        <div className="grid  gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Beach Name</Label>
-            <Input
-              id="name"
-              value={newBeach.name}
-              placeholder="Miami Beach"
-              onChange={(e) => setNewBeach({ ...newBeach, name: e.target.value })}
-              className="bg-background border-border dark:border-slate-600"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="position">Beach Position</Label>
-            <Select value={newBeach.position} onValueChange={(value) => setNewBeach({ ...newBeach, position: value })}>
-              <SelectTrigger className="w-full dark:border-slate-600">
-                <SelectValue placeholder="Select a position" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="north">North</SelectItem>
-                <SelectItem value="south">South</SelectItem>
-                <SelectItem value="east">East</SelectItem>
-                <SelectItem value="west">West</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="latitude">Latitude</Label>
+        <div className='grid  gap-4 py-4'>
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor='name'>Nome da Praia</Label>
               <Input
-                id="latitude"
-                type="text"
-                placeholder="-23.000372"
-                step="any"
-                value={newBeach.lat}
-                onChange={(e) => {
-                let value = e.target.value;
-
-    // Remove any non-digit, non-decimal, non-minus characters
-    value = value.replace(/[^-\d.]/g, '');
-
-    // Handle negative sign only at the beginning
-    if (value.indexOf('-') > 0) {
-      value = value.replace(/-/g, '');
-    }
-
-    // Split by decimal point
-    let parts = value.split('.');
-
-    // If there's an integer part, limit it and add decimal
-    if (parts[0]) {
-      // Remove leading minus for processing
-      const isNegative = parts[0].startsWith('-');
-      let integerPart = parts[0].replace('-', '');
-
-      // Ensure exactly 2 digits for integer part
-      if (integerPart.length >= 2) {
-        integerPart = integerPart.slice(0, 2);
-        // Auto-add decimal point after 2 digits
-        if (parts.length === 1 && value.length >= (isNegative ? 3 : 2)) {
-          value = (isNegative ? '-' : '') + integerPart + '.';
-        } else {
-          // Limit decimal part to 6 digits
-          const decimalPart = parts[1] ? parts[1].slice(0, 6) : '';
-          value = (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
-        }
-      } else {
-        value = (isNegative ? '-' : '') + integerPart;
-      }
-    }
-
-    setNewBeach({ ...newBeach, lat: value });
-                }}
-                className="bg-background border-border dark:border-slate-600"
+                id='name'
+                value={newBeach.name}
+                placeholder='Praia do Rosa'
+                onChange={(e) => setNewBeach({ ...newBeach, name: e.target.value })}
+                className='bg-background border-border dark:border-slate-600'
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="longitude">Longitude</Label>
+            <div className='grid gap-2'>
+              <Label htmlFor='position'>Posição da Praia</Label>
+              <Select
+                value={newBeach.position}
+                onValueChange={(value) => setNewBeach({ ...newBeach, position: value })}
+              >
+                <SelectTrigger className='w-full dark:border-slate-600'>
+                  <SelectValue placeholder='Selecione uma posição' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='north'>Norte</SelectItem>
+                  <SelectItem value='south'>Sul</SelectItem>
+                  <SelectItem value='east'>Leste</SelectItem>
+                  <SelectItem value='west'>Oeste</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor='latitude'>Latitude</Label>
               <Input
-                id="longitude"
-                type="text"
-                placeholder="-43.365894"
-                step="any"
+                id='latitude'
+                type='text'
+                placeholder='-23.000372'
+                step='any'
+                value={newBeach.lat}
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  value = value.replace(/[^-\d.]/g, '');
+
+                  if (value.indexOf('-') > 0) {
+                    value = value.replace(/-/g, '');
+                  }
+
+                  let parts = value.split('.');
+
+                  if (parts[0]) {
+                    const isNegative = parts[0].startsWith('-');
+                    let integerPart = parts[0].replace('-', '');
+
+                    if (integerPart.length >= 2) {
+                      integerPart = integerPart.slice(0, 2);
+                      if (parts.length === 1 && value.length >= (isNegative ? 3 : 2)) {
+                        value = (isNegative ? '-' : '') + integerPart + '.';
+                      } else {
+                        const decimalPart = parts[1] ? parts[1].slice(0, 6) : '';
+                        value = (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
+                      }
+                    } else {
+                      value = (isNegative ? '-' : '') + integerPart;
+                    }
+                  }
+
+                  setNewBeach({ ...newBeach, lat: value });
+                }}
+                className='bg-background border-border dark:border-slate-600'
+              />
+            </div>
+            <div className='grid gap-2'>
+              <Label htmlFor='longitude'>Longitude</Label>
+              <Input
+                id='longitude'
+                type='text'
+                placeholder='-43.365894'
+                step='any'
                 value={newBeach.lng}
                 onChange={(e) => {
-                let value = e.target.value;
+                  let value = e.target.value;
 
-    // Remove any non-digit, non-decimal, non-minus characters
-    value = value.replace(/[^-\d.]/g, '');
+                  value = value.replace(/[^-\d.]/g, '');
 
-    // Handle negative sign only at the beginning
-    if (value.indexOf('-') > 0) {
-      value = value.replace(/-/g, '');
-    }
+                  if (value.indexOf('-') > 0) {
+                    value = value.replace(/-/g, '');
+                  }
 
-    // Split by decimal point
-    let parts = value.split('.');
+                  let parts = value.split('.');
 
-    // If there's an integer part, limit it and add decimal
-    if (parts[0]) {
-      // Remove leading minus for processing
-      const isNegative = parts[0].startsWith('-');
-      let integerPart = parts[0].replace('-', '');
+                  if (parts[0]) {
+                    const isNegative = parts[0].startsWith('-');
+                    let integerPart = parts[0].replace('-', '');
 
-      // Ensure exactly 2 digits for integer part
-      if (integerPart.length >= 2) {
-        integerPart = integerPart.slice(0, 2);
-        // Auto-add decimal point after 2 digits
-        if (parts.length === 1 && value.length >= (isNegative ? 3 : 2)) {
-          value = (isNegative ? '-' : '') + integerPart + '.';
-        } else {
-          // Limit decimal part to 6 digits
-          const decimalPart = parts[1] ? parts[1].slice(0, 6) : '';
-          value = (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
-        }
-      } else {
-        value = (isNegative ? '-' : '') + integerPart;
-      }
-    }
+                    if (integerPart.length >= 2) {
+                      integerPart = integerPart.slice(0, 2);
+                      if (parts.length === 1 && value.length >= (isNegative ? 3 : 2)) {
+                        value = (isNegative ? '-' : '') + integerPart + '.';
+                      } else {
+                        const decimalPart = parts[1] ? parts[1].slice(0, 6) : '';
+                        value = (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
+                      }
+                    } else {
+                      value = (isNegative ? '-' : '') + integerPart;
+                    }
+                  }
 
-    setNewBeach({ ...newBeach, lng: value });
+                  setNewBeach({ ...newBeach, lng: value });
                 }}
-                className="bg-background border-border dark:border-slate-600"
+                className='bg-background border-border dark:border-slate-600'
               />
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)} className="">
-            Cancel
+        <div className='flex justify-end gap-2'>
+          <Button variant='outline' onClick={() => setIsOpen(false)} className=''>
+            Cancelar
           </Button>
-          <Button onClick={handleSubmit} className="bg-[#BBC5AA] hover:bg-[#BBC5AA]">
-            Add Beach
+          <Button
+            onClick={handleSubmit}
+            className='bg-gradient-to-r from-slate-100 to-slate-300 dark:from-slate-700 dark:to-slate-800 text-black dark:text-white'
+          >
+            Adicionar Praia
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

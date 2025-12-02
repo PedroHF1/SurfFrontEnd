@@ -10,32 +10,27 @@ interface BeachListProps {
   selectedTimeIndex: number;
   sortBy: string;
   searchQuery: string;
+  onDelete?: () => void;
 }
 
-export function BeachList({ beaches, selectedTimeIndex, sortBy, searchQuery }: BeachListProps) {
+export function BeachList({
+  beaches,
+  selectedTimeIndex,
+  sortBy,
+  searchQuery,
+  onDelete,
+}: BeachListProps) {
   const filteredAndSortedBeaches = useMemo(() => {
     let filtered = beaches;
 
-    // Apply search filter
     if (searchQuery) {
       filtered = beaches.filter((beach) =>
         beach.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
-    // Apply sorting
     return sortBeaches(filtered, sortBy);
   }, [beaches, sortBy, searchQuery]);
-
-  // if (filteredAndSortedBeaches.length === 0) {
-  //   return (
-  //     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='text-center py-12'>
-  //       <div className='text-muted-foreground'>
-  //         {searchQuery ? `No beaches found matching "${searchQuery}"` : ''}
-  //       </div>
-  //     </motion.div>
-  //   );
-  // }
 
   return (
     <motion.div
@@ -46,7 +41,12 @@ export function BeachList({ beaches, selectedTimeIndex, sortBy, searchQuery }: B
     >
       <AnimatePresence mode='popLayout'>
         {filteredAndSortedBeaches.map((beach, index) => (
-          <BeachCard key={beach.name} beach={beach} selectedTimeIndex={selectedTimeIndex} />
+          <BeachCard
+            key={beach.name}
+            beach={beach}
+            selectedTimeIndex={selectedTimeIndex}
+            onDelete={onDelete}
+          />
         ))}
       </AnimatePresence>
     </motion.div>

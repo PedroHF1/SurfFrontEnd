@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getForecast } from '@/services/forecast';
 import { Beach } from '@/interfaces/forecast';
 import { QuickGuideDialog, useQuickGuide } from './_components/QuickGuideDialog';
-
+import { ForecastSkeleton } from '@/components/skeletons/ForecastSkeleton';
 
 export default function Forecast() {
   const [selectedBeach, setSelectedBeach] = useState<Beach | null>(null);
@@ -16,7 +16,11 @@ export default function Forecast() {
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
   const { showGuide, closeGuide } = useQuickGuide();
 
-  const { data = [], isFetching } = useQuery({
+  const {
+    data = [],
+    isFetching,
+    refetch,
+  } = useQuery({
     retry: false,
     queryKey: ['forecast'],
     queryFn: () => getForecast(),
@@ -38,7 +42,7 @@ export default function Forecast() {
         <GoogleMapComponent markers={markers} />
       </div>
       {isFetching ? (
-        <div></div>
+        <ForecastSkeleton />
       ) : (
         <>
           <SlidingPanel
@@ -53,6 +57,7 @@ export default function Forecast() {
             onBeachDeselect={() => setSelectedBeach(null)}
             onTogglePanel={() => setIsPanelExpanded(!isPanelExpanded)}
             onPanelExpand={() => setIsPanelExpanded(true)}
+            refetch={refetch}
           />
           <QuickGuideDialog isOpen={showGuide && !isFetching} onClose={closeGuide} />
         </>

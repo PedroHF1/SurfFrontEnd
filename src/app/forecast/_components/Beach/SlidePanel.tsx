@@ -11,6 +11,8 @@ import { SortDropdown } from '../SortDropdown';
 import { HourBar, TimeBar } from '../TimeBar';
 import { BeachList } from './BeachList';
 import moment from 'moment';
+import { QueryObserverResult } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface SlidingPanelProps {
   forecasts: Forecast[];
@@ -24,6 +26,7 @@ interface SlidingPanelProps {
   onBeachDeselect: () => void;
   onTogglePanel: () => void;
   onPanelExpand: () => void;
+  refetch: () => Promise<QueryObserverResult<Forecast[], Error>>;
 }
 
 export function SlidingPanel({
@@ -37,6 +40,7 @@ export function SlidingPanel({
   onBeachSelect,
   onBeachDeselect,
   onTogglePanel,
+  refetch,
   onPanelExpand,
 }: SlidingPanelProps) {
   const times = forecasts.map((f) => f.time);
@@ -107,8 +111,15 @@ export function SlidingPanel({
   const handleAddBeach = async (payload: AddBeach) => {
     try {
       await createBeach(payload);
+      toast.success('Praia adicionada com sucesso!', {
+        description: `${payload.name} foi adicionada à sua lista de previsões.`,
+      });
+      refetch();
     } catch (error) {
       console.error(error);
+      toast.error('Falha ao adicionar praia', {
+        description: 'Ocorreu um erro ao adicionar a praia. Por favor, tente novamente.',
+      });
     }
   };
 
@@ -137,7 +148,7 @@ export function SlidingPanel({
         onDateSelect={handleDateSelect}
       />
 
-      <main className='container mx-auto px-4 py-6 overflow-y-auto no-scrollbar h-[60vh]'>
+      <main className='container mx-auto px-4 py-6 overflow-y-auto no-scrollbar h-[70vh]'>
         <motion.div
           className='flex items-center justify-between mb-6'
           initial={{ opacity: 0, y: 20 }}
@@ -146,12 +157,13 @@ export function SlidingPanel({
         >
           <div className='flex items-center gap-4'>
             <h2 className='text-lg font-semibold text-foreground'>
-              {processedData.filteredCount} of {processedData.totalCount} beaches
+              {processedData.filteredCount} de {processedData.totalCount} praias
             </h2>
 
             {activeFiltersCount > 0 && (
               <Badge variant='secondary' className='gap-1'>
-                {activeFiltersCount} filter{activeFiltersCount !== 1 ? 's' : ''} active
+                {activeFiltersCount} filtro{activeFiltersCount !== 1 ? 's' : ''} ativo
+                {activeFiltersCount !== 1 ? 's' : ''}
               </Badge>
             )}
           </div>
@@ -165,6 +177,7 @@ export function SlidingPanel({
             selectedTimeIndex={selectedTimeIndex >= 0 ? selectedTimeIndex : 0}
             sortBy={sortBy}
             searchQuery={searchQuery}
+            onDelete={refetch}
           />
         </motion.div>
 
@@ -177,9 +190,12 @@ export function SlidingPanel({
           >
             <div className='max-w-md mx-auto'>
               <div className='text-6xl mb-4'>🏄‍♂️</div>
-              <h3 className='text-xl font-semibold text-foreground mb-2'>No beaches found</h3>
+              <h3 className='text-xl font-semibold text-foreground mb-2'>
+                Nenhuma praia encontrada
+              </h3>
               <p className='text-muted-foreground mb-4'>
-                Try adjusting your search or filters to find more surf spots or add a new one.
+                Ajuste sua pesquisa ou filtros para encontrar mais picos de surf ou adicione um
+                novo.
               </p>
               <div className='flex gap-2 justify-center'>
                 {searchQuery && (
@@ -187,7 +203,7 @@ export function SlidingPanel({
                     onClick={() => setSearchQuery('')}
                     className='text-sm text-primary hover:underline'
                   >
-                    Clear search
+                    Limpar pesquisa
                   </button>
                 )}
                 {activeFiltersCount > 0 && (
@@ -203,7 +219,7 @@ export function SlidingPanel({
                     }
                     className='text-sm text-primary hover:underline'
                   >
-                    Reset filters
+                    Redefinir filtros
                   </button>
                 )}
               </div>
